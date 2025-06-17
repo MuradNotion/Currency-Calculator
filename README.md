@@ -1,1 +1,1 @@
-# currency-converter-widget
+# Currency Converter
