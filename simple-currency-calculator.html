@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Currency Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: auto; }
+    input, select, button { padding: 10px; margin-top: 10px; width: 100%; }
+    .result { margin-top: 20px; font-size: 18px; }
+  </style>
+</head>
+<body>
+
+  <h2>Simple Currency Calculator</h2>
+  <label for="amount">Amount:</label>
+  <input type="number" id="amount" placeholder="Enter amount" />
+
+  <label for="from">From Currency:</label>
+  <select id="from">
+    <option value="BRL">BRL</option>
+    <option value="USD">USD</option>
+    <option value="EUR">EUR</option>
+    <option value="GBP">GBP</option>
+  </select>
+
+  <label for="to">To Currency:</label>
+  <select id="to">
+    <option value="USD">USD</option>
+    <option value="BRL">BRL</option>
+    <option value="EUR">EUR</option>
+    <option value="GBP">GBP</option>
+  </select>
+
+  <button onclick="convert()">Convert</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    const rates = {
+      BRL: { USD: 0.19, EUR: 0.17, GBP: 0.14 },
+      USD: { BRL: 5.25, EUR: 0.91, GBP: 0.79 },
+      EUR: { BRL: 5.88, USD: 1.10, GBP: 0.87 },
+      GBP: { BRL: 6.80, USD: 1.27, EUR: 1.15 }
+    };
+
+    function convert() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const from = document.getElementById("from").value;
+      const to = document.getElementById("to").value;
+      const rate = rates[from][to];
+
+      if (isNaN(amount)) {
+        document.getElementById("result").innerText = "Please enter a valid amount.";
+        return;
+      }
+
+      if (from === to) {
+        document.getElementById("result").innerText = `Converted amount: ${amount.toFixed(2)} ${to}`;
+        return;
+      }
+
+      const converted = amount * rate;
+      document.getElementById("result").innerText = `Converted amount: ${converted.toFixed(2)} ${to}`;
+    }
+  </script>
+
+</body>
+</html>
