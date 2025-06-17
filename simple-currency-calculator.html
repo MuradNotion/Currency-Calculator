@@ -6,48 +6,35 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 480px;
+      max-width: 500px;
       margin: 40px auto;
       padding: 20px;
       background: #f9f9f9;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    h2 {
-      text-align: center;
-    }
-    label {
-      margin-top: 15px;
-      display: block;
-      font-weight: bold;
-    }
-    input, select, button {
+    h2 { text-align: center; }
+    label, select, input, button {
       width: 100%;
-      padding: 10px;
-      margin-top: 5px;
+      margin-top: 10px;
       font-size: 16px;
-      box-sizing: border-box;
-    }
-    .result {
-      margin-top: 20px;
-      font-size: 18px;
-      text-align: center;
-      color: #333;
+      padding: 10px;
     }
     button {
       background-color: #007bff;
       color: white;
       border: none;
       cursor: pointer;
-      transition: 0.3s;
     }
-    button:hover {
-      background-color: #0056b3;
+    button:hover { background-color: #0056b3; }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-
   <h2>Live Currency Converter</h2>
 
   <label for="amount">Amount:</label>
@@ -68,20 +55,15 @@
     const toSelect = document.getElementById("to");
     const resultDiv = document.getElementById("result");
 
-    // Fetch supported currencies
+    // Load currency symbols
     fetch("https://api.exchangerate.host/symbols")
       .then(res => res.json())
       .then(data => {
-        const symbols = data.symbols;
-        for (let key in symbols) {
-          let optionFrom = document.createElement("option");
-          let optionTo = document.createElement("option");
-          optionFrom.value = key;
-          optionFrom.textContent = `${key} - ${symbols[key].description}`;
-          optionTo.value = key;
-          optionTo.textContent = `${key} - ${symbols[key].description}`;
-          fromSelect.appendChild(optionFrom);
-          toSelect.appendChild(optionTo);
+        for (const [code, { description }] of Object.entries(data.symbols)) {
+          const option1 = new Option(`${code} - ${description}`, code);
+          const option2 = new Option(`${code} - ${description}`, code);
+          fromSelect.add(option1.cloneNode(true));
+          toSelect.add(option2.cloneNode(true));
         }
         fromSelect.value = "USD";
         toSelect.value = "EUR";
@@ -92,8 +74,8 @@
       const from = fromSelect.value;
       const to = toSelect.value;
 
-      if (isNaN(amount) || amount <= 0) {
-        resultDiv.textContent = "Please enter a valid amount.";
+      if (!amount || amount <= 0) {
+        resultDiv.textContent = "Enter a valid amount.";
         return;
       }
 
@@ -104,10 +86,9 @@
           resultDiv.textContent = `${amount} ${from} = ${result.toFixed(2)} ${to}`;
         })
         .catch(() => {
-          resultDiv.textContent = "Error fetching exchange rate. Try again.";
+          resultDiv.textContent = "Error fetching exchange rate.";
         });
     }
   </script>
-
 </body>
 </html>
