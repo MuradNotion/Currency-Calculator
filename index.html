@@ -174,15 +174,14 @@
     document.getElementById('amount').addEventListener('input', convertCurrency);
     document.getElementById('fromCurrency').addEventListener('change', convertCurrency);
     document.getElementById('toCurrency').addEventListener('change', convertCurrency);
-
     window.addEventListener('resize', scaleCalculator);
 
-    window.addEventListener('DOMContentLoaded', async () => {
+    window.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('darkMode') === 'true') {
         document.body.classList.add('dark');
       }
       populateCurrencies();
-      await convertCurrency();
+      convertCurrency(); // run without await
       setTimeout(scaleCalculator, 10);
     });
   </script>
