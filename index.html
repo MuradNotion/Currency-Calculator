@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Live Currency Calculator</title>
+  <title>Currency Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     html, body {
@@ -42,19 +42,12 @@
       align-items: center;
     }
 
-    select, input, button {
+    select, input {
       padding: 10px;
       font-size: 1em;
       border: 1px solid #ccc;
       border-radius: 6px;
       flex: 1;
-    }
-
-    .result {
-      font-size: 1.4em;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 10px;
     }
 
     .dot-toggle {
@@ -76,8 +69,7 @@
     }
 
     body.dark select,
-    body.dark input,
-    body.dark button {
+    body.dark input {
       background: rgba(255, 255, 255, 0.1);
       color: #fff;
       border-color: #666;
@@ -86,20 +78,6 @@
     body.dark .dot-toggle {
       background: #888;
       border-color: #444;
-    }
-
-    button {
-      cursor: pointer;
-      font-weight: bold;
-      background: #007bff;
-      color: #fff;
-      flex: none;
-      width: 100%;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background: #0056b3;
     }
   </style>
 </head>
@@ -117,36 +95,30 @@
         <select id="toCurrency"></select>
         <input type="text" id="converted" disabled />
       </div>
-
-      <button onclick="convertCurrency()">Convert</button>
-
-      <div class="result" id="resultText">Loading...</div>
     </div>
   </div>
 
   <script>
     async function populateCurrencies() {
-      try {
-        const res = await fetch('https://api.exchangerate.host/symbols');
-        const data = await res.json();
-        const symbols = data.symbols;
-        const fromSelect = document.getElementById('fromCurrency');
-        const toSelect = document.getElementById('toCurrency');
+      const fromSelect = document.getElementById('fromCurrency');
+      const toSelect = document.getElementById('toCurrency');
 
-        for (const code in symbols) {
-          const optionFrom = document.createElement('option');
-          const optionTo = document.createElement('option');
-          optionFrom.value = optionTo.value = code;
-          optionFrom.text = optionTo.text = `${code} - ${symbols[code].description}`;
-          fromSelect.appendChild(optionFrom);
-          toSelect.appendChild(optionTo);
-        }
+      try {
+        const response = await fetch('https://api.exchangerate.host/symbols');
+        const data = await response.json();
+
+        Object.entries(data.symbols).forEach(([code, info]) => {
+          const option1 = new Option(`${code}`, code);
+          const option2 = new Option(`${code}`, code);
+          fromSelect.appendChild(option1);
+          toSelect.appendChild(option2);
+        });
 
         fromSelect.value = 'USD';
         toSelect.value = 'EUR';
         convertCurrency();
-      } catch {
-        document.getElementById('resultText').textContent = 'Failed to load currencies.';
+      } catch (error) {
+        document.getElementById('converted').value = 'Error loading currencies';
       }
     }
 
@@ -161,16 +133,14 @@
       const to = document.getElementById('toCurrency').value;
       const amount = parseFloat(document.getElementById('amount').value) || 0;
 
-      if (from === to) {
+      if (!from || !to || from === to) {
         document.getElementById('converted').value = amount.toFixed(2);
-        document.getElementById('resultText').textContent = `1 ${from} = 1 ${to}`;
         return;
       }
 
       const rate = await fetchRate(from, to);
-      const converted = amount * rate;
-      document.getElementById('converted').value = converted.toFixed(2);
-      document.getElementById('resultText').textContent = `1 ${from} = ${rate.toFixed(4)} ${to}`;
+      const result = amount * rate;
+      document.getElementById('converted').value = result.toFixed(2);
     }
 
     function toggleDarkMode() {
@@ -194,6 +164,10 @@
       const scale = Math.min(scaleX, scaleY);
       wrapper.style.transform = `scale(${scale})`;
     }
+
+    document.getElementById('amount').addEventListener('input', convertCurrency);
+    document.getElementById('fromCurrency').addEventListener('change', convertCurrency);
+    document.getElementById('toCurrency').addEventListener('change', convertCurrency);
 
     window.addEventListener('resize', scaleCalculator);
     window.addEventListener('DOMContentLoaded', () => {
